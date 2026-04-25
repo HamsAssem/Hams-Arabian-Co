@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0E1A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Hams Skincare — Premium Skincare Products</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ░░ ANNOUNCEMENT BAR ░░ -->
+  <div class="announcement-bar" id="announcementBar">
+    <div class="announcement-track">
+      <span>Free shipping on orders over KWD 15 &nbsp;·&nbsp; New arrivals: Vitamin C Complete Treatment &nbsp;·&nbsp; Up to 70% off the entire store &nbsp;·&nbsp; Free shipping on orders over KWD 15 &nbsp;·&nbsp; New arrivals: Vitamin C Complete Treatment &nbsp;·&nbsp; Up to 70% off the entire store</span>
+    </div>
+    <button class="announcement-close" onclick="document.getElementById('announcementBar').remove()">&#x2715;</button>
+  </div>
+
+  <!-- ░░ NAVIGATION ░░ -->
+  <header class="navbar" id="navbar">
+    <div class="nav-container">
+
+      <button type="button" class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+
+      <a href="#home" class="logo" data-view="home">HAMS</a>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#home"        class="nav-link active" data-view="home">Home</a>
+        <a href="#collections" class="nav-link"        data-view="collections">Collections</a>
+        <a href="#shop"        class="nav-link"        data-view="shop">Shop</a>
+        <a href="#about"       class="nav-link"        data-view="about">About</a>
+        <a href="#contact"     class="nav-link"        data-view="contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="icon-btn" id="searchToggle" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <button class="icon-btn wishlist-btn" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="badge" id="wishlistBadge">0</span>
+        </button>
+        <button class="icon-btn cart-btn" id="cartToggle" aria-label="Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar" id="searchBar">
+      <div class="search-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search for products…" />
+        <button onclick="closeSearch()">&#x2715;</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- ░░ CART DRAWER ░░ -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button onclick="closeCart()">&#x2715;</button>
+    </div>
+    <div class="cart-body" id="cartBody">
+      <div class="cart-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>Your cart is empty</p>
+        <button class="btn-primary" onclick="closeCart()">Continue Shopping</button>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">KWD 0.000</span>
+      </div>
+      <button class="btn-primary full-width" onclick="showCheckout()">Checkout</button>
+    </div>
+  </aside>
+
+  <!-- ░░ CHECKOUT MODAL ░░ -->
+  <div class="modal-overlay" id="checkoutOverlay" style="display:none">
+    <div class="checkout-modal">
+      <button class="modal-close" onclick="closeCheckout()">&#x2715;</button>
+      <h2>Complete Your Order</h2>
+      <p class="modal-sub">Fill in your details and we'll ship it straight to you.</p>
+      <form id="checkoutForm" onsubmit="submitOrder(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" name="name" required placeholder="Sara Al-Ahmad" />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required placeholder="sara@email.com" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" name="phone" required placeholder="+965 9222 2936" />
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" name="city" required placeholder="Kuwait City" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Delivery Address *</label>
+          <textarea name="address" required placeholder="Block, Street, House/Apartment number…" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Notes (optional)</label>
+          <textarea name="notes" placeholder="Any special instructions…" rows="2"></textarea>
+        </div>
+        <div class="order-summary-mini" id="orderSummaryMini"></div>
+        <button type="submit" class="btn-primary full-width">Place Order</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ░░ SUCCESS MODAL ░░ -->
+  <div class="modal-overlay" id="successOverlay" style="display:none">
+    <div class="success-modal">
+      <div class="success-icon">✓</div>
+      <h2>Order Placed!</h2>
+      <p>Thank you for your order. We'll contact you shortly to confirm delivery.</p>
+      <button class="btn-primary" onclick="closeSuccess()">Continue Shopping</button>
+    </div>
+  </div>
+
+  <!-- ░░ MAIN CONTENT ░░ -->
+  <main id="app">
+
+    <!-- ========== VIEW: HOME ========== -->
+    <section id="view-home" class="view active">
+
+      <!-- HERO SLIDER -->
+      <div class="hero" id="hero">
+        <div class="hero-slides" id="heroSlides">
+
+          <div class="hero-slide active" style="background-image: linear-gradient(120deg,rgba(0,0,0,.38) 0%,transparent 60%), url('https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=1600&q=80')">
+            <div class="hero-content">
+              <span class="hero-eyebrow">Complete Beauty Program</span>
+              <h1>Skin That Speaks<br><em>Confidence</em></h1>
+              <p>Clinically proven formulas crafted for radiant, youthful skin.</p>
+              <div class="hero-actions">
+                <button class="btn-primary" onclick="navigateTo('shop')">Shop Now</button>
+                <button class="btn-ghost" onclick="navigateTo('collections')">Explore Collections</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-slide" style="background-image: linear-gradient(120deg,rgba(0,0,0,.38) 0%,transparent 60%), url('https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1600&q=80')">
+            <div class="hero-content">
+              <span class="hero-eyebrow">Deep Hydration</span>
+              <h1>Restore Your Skin's<br><em>Natural Glow</em></h1>
+              <p>Intense hydration serums that work while you sleep.</p>
+              <div class="hero-actions">
+                <button class="btn-primary" onclick="navigateTo('shop')">Shop Hydration</button>
+                <button class="btn-ghost" onclick="navigateTo('about')">Our Story</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-slide" style="background-image: linear-gradient(120deg,rgba(0,0,0,.38) 0%,transparent 60%), url('https://images.unsplash.com/photo-1614806687007-2215b2c15bc8?w=1600&q=80')">
+            <div class="hero-content">
+              <span class="hero-eyebrow">Vitamin C Line — New Arrivals</span>
+              <h1>Brighten, Protect<br><em>&amp; Renew</em></h1>
+              <p>Pure Vitamin C complexes that fade dark spots and boost luminosity.</p>
+              <div class="hero-actions">
+                <button class="btn-primary" onclick="navigateTo('shop')">Discover Vitamin C</button>
+                <button class="btn-ghost" onclick="navigateTo('shop')">View All</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <button class="hero-arrow hero-prev" onclick="slideHero(-1)">&#8592;</button>
+        <button class="hero-arrow hero-next" onclick="slideHero(1)">&#8594;</button>
+        <div class="hero-dots" id="heroDots"></div>
+      </div>
+
+      <!-- TRUST BADGES -->
+      <div class="trust-strip">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <span>Free Shipping over KWD 15</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Dermatologist Tested</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          <span>Gift Wrapping Available</span>
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Easy Returns</span>
+        </div>
+      </div>
+
+      <!-- COLLECTIONS PREVIEW -->
+      <section class="section" id="home-collections">
+        <div class="section-header">
+          <span class="section-eyebrow">Explore</span>
+          <h2>Our Collections</h2>
+          <p>Targeted formulas for every skin concern</p>
+        </div>
+        <div class="collections-grid" id="homeCollectionsGrid">
+          <div class="skeleton-card"></div><div class="skeleton-card"></div>
+          <div class="skeleton-card"></div><div class="skeleton-card"></div>
+        </div>
+        <div class="section-cta">
+          <button class="btn-outline" onclick="navigateTo('collections')">View All Collections</button>
+        </div>
+      </section>
+
+      <!-- MONTHLY OFFERS -->
+      <section class="section section-tinted">
+        <div class="section-header">
+          <span class="section-eyebrow">This Month</span>
+          <h2>Monthly Offers</h2>
+          <p>Hand-picked deals refreshed every month</p>
+        </div>
+        <div class="products-grid" id="monthlyOffersGrid">
+          <div class="skeleton-product"></div><div class="skeleton-product"></div>
+          <div class="skeleton-product"></div><div class="skeleton-product"></div>
+        </div>
+      </section>
+
+      <!-- BEST SELLERS -->
+      <section class="section">
+        <div class="section-header">
+          <span class="section-eyebrow">Most Loved</span>
+          <h2>Best Sellers</h2>
+        </div>
+        <div class="products-slider-wrapper">
+          <button class="slider-arrow left" onclick="scrollProductSlider('bestSellersSlider',-1)">&#8592;</button>
+          <div class="products-slider" id="bestSellersSlider"></div>
+          <button class="slider-arrow right" onclick="scrollProductSlider('bestSellersSlider',1)">&#8594;</button>
+        </div>
+      </section>
+
+      <!-- PROMO BANNER -->
+      <section class="promo-banner">
+        <div class="promo-content">
+          <span class="promo-tag">Limited Time</span>
+          <h2>Up to <span>70% Off</span><br>the Entire Store</h2>
+          <p>Don't miss our biggest sale of the season.</p>
+          <button class="btn-primary" onclick="navigateTo('shop')">Shop the Sale</button>
+        </div>
+        <div class="promo-image" style="background-image:url('https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&q=80')"></div>
+      </section>
+
+      <!-- TOP RATED -->
+      <section class="section section-tinted">
+        <div class="section-header">
+          <span class="section-eyebrow">Community Picks</span>
+          <h2>Top Rated</h2>
+        </div>
+        <div class="products-grid" id="topRatedGrid"></div>
+      </section>
+
+      <!-- NEWSLETTER -->
+      <section class="newsletter">
+        <div class="newsletter-content">
+          <span class="section-eyebrow">Stay in the Loop</span>
+          <h2>Get Skincare Tips &amp; Exclusive Offers</h2>
+          <p>Join thousands of skincare lovers and never miss a deal.</p>
+          <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+            <input type="email" placeholder="your@email.com" required />
+            <button type="submit" class="btn-primary">Subscribe</button>
+          </form>
+        </div>
+      </section>
+
+    </section>
+    <!-- END HOME VIEW -->
+
+    <!-- ========== VIEW: COLLECTIONS ========== -->
+    <section id="view-collections" class="view">
+      <div class="page-hero">
+        <h1>Our Collections</h1>
+        <p>Every formula, a targeted ritual</p>
+      </div>
+      <div class="container">
+        <div class="collections-grid large" id="fullCollectionsGrid">
+          <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: SHOP ========== -->
+    <section id="view-shop" class="view">
+      <div class="page-hero">
+        <h1 id="shopTitle">All Products</h1>
+        <p id="shopSubtitle">Discover our full range of skincare</p>
+      </div>
+      <div class="container">
+        <div class="shop-toolbar">
+          <div class="filter-tags" id="filterTags"></div>
+          <div class="sort-row">
+            <label>Sort by</label>
+            <select id="sortSelect" onchange="renderShop()">
+              <option value="default">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name A–Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="products-grid" id="shopGrid">
+          <div class="skeleton-product"></div><div class="skeleton-product"></div>
+          <div class="skeleton-product"></div><div class="skeleton-product"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: ABOUT ========== -->
+    <section id="view-about" class="view">
+      <div class="page-hero">
+        <h1>Our Story</h1>
+        <p>Science-backed skincare born from passion</p>
+      </div>
+      <div class="container about-container">
+        <div class="about-grid">
+          <div class="about-text">
+            <span class="section-eyebrow">Who We Are</span>
+            <h2>Skin That Thrives,<br>Naturally</h2>
+            <p>HAMS was founded on a simple belief: every person deserves access to skincare that actually works. We partner with leading dermatologists and cosmetic chemists to create formulas backed by science — and loved by skin.</p>
+            <p>From our signature Vitamin C Complex to our deep-hydration Gold line, each product goes through rigorous testing before it reaches your hands.</p>
+            <div class="about-stats">
+              <div class="stat"><span>12+</span><label>Years of Research</label></div>
+              <div class="stat"><span>50k+</span><label>Happy Customers</label></div>
+              <div class="stat"><span>100%</span><label>Dermatologist Tested</label></div>
+            </div>
+          </div>
+          <div class="about-image" style="background-image:url('https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&q=80')"></div>
+        </div>
+        <div class="values-grid">
+          <div class="value-card"><div class="value-icon">🌿</div><h3>Clean Ingredients</h3><p>No parabens, no sulfates, no artificial fragrances.</p></div>
+          <div class="value-card"><div class="value-icon">🔬</div><h3>Science First</h3><p>Every formula is clinically tested and proven to deliver results.</p></div>
+          <div class="value-card"><div class="value-icon">🌍</div><h3>Sustainably Made</h3><p>Eco-conscious packaging and responsible sourcing.</p></div>
+          <div class="value-card"><div class="value-icon">💛</div><h3>Made with Love</h3><p>Each product is crafted with care for the person who uses it.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: PRODUCT ========== -->
+    <section id="view-product" class="view">
+      <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+        <div id="productDetailContent">
+          <div class="skeleton-product" style="height: 600px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW: CONTACT ========== -->
+    <section id="view-contact" class="view">
+      <div class="page-hero">
+        <h1>Get in Touch</h1>
+        <p>We'd love to hear from you</p>
+      </div>
+      <div class="container contact-container">
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h3>Contact Details</h3>
+            <div class="contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div><strong>Address</strong><p>Kuwait — Hawalli — Tunis Street, Al-Rehab Complex</p></div>
+            </div>
+            <div class="contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.4 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6.29 6.29l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <div><strong>WhatsApp</strong><a href="https://wa.me/96592222936">+965 9222 2936</a></div>
+            </div>
+            <div class="contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <div><strong>Email</strong><a href="mailto:info@hamsgroups.com">info@hamsgroups.com</a></div>
+            </div>
+            <div class="social-links">
+              <a href="https://www.instagram.com/histomerkw" target="_blank" class="social-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram
+              </a>
+            </div>
+          </div>
+          <form class="contact-form" onsubmit="submitContact(event)">
+            <h3>Send a Message</h3>
+            <div class="form-row">
+              <div class="form-group"><label>Name</label><input type="text" required placeholder="Your name" /></div>
+              <div class="form-group"><label>Email</label><input type="email" required placeholder="your@email.com" /></div>
+            </div>
+            <div class="form-group"><label>Subject</label><input type="text" required placeholder="How can we help?" /></div>
+            <div class="form-group"><label>Message</label><textarea rows="5" required placeholder="Write your message here…"></textarea></div>
+            <button type="submit" class="btn-primary">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ░░ FOOTER ░░ -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">HAMS</div>
+        <p>Premium skincare rooted in science, crafted with love.</p>
+        <div class="social-links">
+          <a href="https://www.instagram.com/histomerkw" target="_blank" class="social-link icon-only">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="#" onclick="navigateTo('shop')">All Products</a>
+        <a href="#" onclick="navigateTo('shop')">Vitamin C</a>
+        <a href="#" onclick="navigateTo('shop')">Hydration</a>
+        <a href="#" onclick="navigateTo('shop')">Anti-Age</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#" onclick="navigateTo('about')">About Us</a>
+        <a href="#" onclick="navigateTo('contact')">Contact</a>
+        <a href="#">Returns Policy</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>Kuwait — Hawalli<br>Tunis Street, Al-Rehab</p>
+        <a href="https://wa.me/96592222936">+965 9222 2936</a>
+        <a href="mailto:info@hamsgroups.com">info@hamsgroups.com</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Hams Arabian Company. All rights reserved.</p>
+      <p><a href="https://hamsgroups.com" target="_blank">hamsgroups.com</a></p>
+    </div>
+  </footer>
+
+  <!-- ░░ TOAST ░░ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ░░ BACK TO TOP ░░ -->
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- ░░ SUPABASE CLIENT ░░ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>
