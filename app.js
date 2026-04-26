@@ -541,20 +541,33 @@ async function submitOrder(e) {
   e.preventDefault();
   const form = e.target;
   if (!sb) { showToast('Database not available.'); return; }
-  const { data: customer, error: custErr } = await sb.from('customers')
-    .insert({ name: form.name.value, email: form.email.value, phone: form.phone.value })
-    .select().single();
-  if (custErr) { showToast('Order failed: ' + custErr.message); return; }
-  const { data: order, error: orderErr } = await sb.from('orders')
-    .insert({ customer_id: customer.id, status: 'pending',
-      shipping_address: { city: form.city.value, address: form.address.value },
-      total_amount: cartTotal(), notes: form.notes?.value || null })
-    .select().single();
-  if (orderErr) { showToast('Order failed: ' + orderErr.message); return; }
-  await sb.from('order_items').insert(cart.map(item => {
+
+  const items = cart.map(item => {
     const p = allProducts.find(pr => pr.id === item.id);
-    return { order_id: order.id, product_id: item.id, quantity: item.qty, unit_price: Number(p?.price || 0) };
-  }));
+    return {
+      product_id: item.id,
+      quantity:   item.qty,
+      unit_price: Number(p?.price || 0),
+    };
+  });
+
+  const { data: orderId, error } = await sb.rpc('place_order', {
+    p_customer: {
+      name:  form.name.value,
+      email: form.email.value,
+      phone: form.phone.value,
+    },
+    p_shipping: {
+      city:    form.city.value,
+      address: form.address.value,
+    },
+    p_notes: form.notes?.value || null,
+    p_total: cartTotal(),
+    p_items: items,
+  });
+
+  if (error) { showToast('Order failed: ' + error.message); return; }
+
   cart = []; saveCart(); updateBadges(); closeCheckout();
   document.getElementById('successOverlay').style.display = 'flex';
 }
