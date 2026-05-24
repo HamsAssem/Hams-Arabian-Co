@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#111318" />
+  <title>Hams — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
+  <!-- ░░ SIDEBAR ░░ -->
+  <aside class="sidebar" id="sidebar" style="display:none">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">HAMS</div>
+      <div class="sidebar-sub">Admin Dashboard</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-page="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Products
+        <span class="nav-badge" id="navProductCount">0</span>
+      </button>
+      <button class="nav-item" data-page="collections">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Collections
+        <span class="nav-badge" id="navCollectionCount">0</span>
+      </button>
+      <button class="nav-item" data-page="bundles">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Bundles
+        <span class="nav-badge" id="navBundleCount">0</span>
+      </button>
+      <button class="nav-item" data-page="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><polyline points="9 12 11 14 15 10"/></svg>
+        Orders
+        <span class="nav-badge" id="navOrderCount">0</span>
+      </button>
+      <button class="nav-item" data-page="customers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Customers
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="connection-dot" id="connectionDot"></div>
+      <span id="connectionLabel">Connecting…</span>
+      <button class="logout-btn" onclick="signOut()" title="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-user" id="sidebarUser"></div>
+  </aside>
+
+  <!-- ░░ MAIN ░░ -->
+  <div class="main-wrap" id="mainWrap" style="display:none">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="hamburger-btn" id="sidebarToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+      <div class="topbar-actions">
+        <button class="topbar-btn" onclick="refreshAll()" title="Refresh data">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Pages -->
+    <main class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <section class="page active" id="page-dashboard">
+        <div class="stat-cards" id="statCards">
+          <div class="stat-card">
+            <div class="stat-icon products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
+            <div class="stat-info"><span class="stat-value" id="statProducts">—</span><span class="stat-label">Products</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon collections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="stat-info"><span class="stat-value" id="statCollections">—</span><span class="stat-label">Collections</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></div>
+            <div class="stat-info"><span class="stat-value" id="statOrders">—</span><span class="stat-label">Orders</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="stat-info"><span class="stat-value" id="statCustomers">—</span><span class="stat-label">Customers</span></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header"><h2>Recent Orders</h2></div>
+            <div id="recentOrdersTable"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Top Products</h2></div>
+            <div id="topProductsList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ PRODUCTS ══ -->
+      <section class="page" id="page-products">
+        <div class="page-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="productSearch" placeholder="Search products…" oninput="filterProductTable()" />
+          </div>
+          <div class="toolbar-right">
+            <select id="productCollectionFilter" onchange="filterProductTable()">
+              <option value="">All Collections</option>
+            </select>
+            <button class="btn-primary" onclick="openProductModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Product
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-scroll">
+          <table class="data-table" id="productsTable">
+            <thead>
+              <tr>
+                <th style="width:52px">Image</th>
+                <th>Name</th>
+                <th>Collection</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Badge</th>
+                <th>Status</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsBody"></tbody>
+          </table>
+          </div>
+          <div class="table-empty" id="productsEmpty" style="display:none">No products yet. Click "Add Product" to get started.</div>
+        </div>
+      </section>
+
+      <!-- ══ COLLECTIONS ══ -->
+      <section class="page" id="page-collections">
+        <div class="page-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="collectionSearch" placeholder="Search collections…" oninput="filterCollectionTable()" />
+          </div>
+          <button class="btn-primary" onclick="openCollectionModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Collection
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="table-scroll">
+          <table class="data-table" id="collectionsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Products</th>
+                <th>Created</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="collectionsBody"></tbody>
+          </table>
+          </div>
+          <div class="table-empty" id="collectionsEmpty" style="display:none">No collections yet. Click "Add Collection" to get started.</div>
+        </div>
+      </section>
+
+      <!-- ══ BUNDLES ══ -->
+      <section class="page" id="page-bundles">
+        <div class="page-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="bundleSearch" placeholder="Search bundles…" oninput="filterBundleTable()" />
+          </div>
+          <button class="btn-primary" onclick="openBundleModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Bundle
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="table-scroll">
+          <table class="data-table" id="bundlesTable">
+            <thead>
+              <tr>
+                <th style="width:52px">Image</th>
+                <th>Name</th>
+                <th>Products</th>
+                <th>Bundle Price</th>
+                <th>Savings</th>
+                <th>Status</th>
+                <th style="width:100px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bundlesBody"></tbody>
+          </table>
+          </div>
+          <div class="table-empty" id="bundlesEmpty" style="display:none">No bundles yet. Click "Add Bundle" to create one.</div>
+        </div>
+      </section>
+
+      <!-- ══ ORDERS ══ -->
+      <section class="page" id="page-orders">
+        <div class="page-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="orderSearch" placeholder="Search by customer name or email…" oninput="filterOrderTable()" />
+          </div>
+          <select id="orderStatusFilter" onchange="filterOrderTable()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="table-scroll">
+          <table class="data-table" id="ordersTable">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th style="width:80px">Details</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+          </div>
+          <div class="table-empty" id="ordersEmpty" style="display:none">No orders yet.</div>
+        </div>
+      </section>
+
+      <!-- ══ CUSTOMERS ══ -->
+      <section class="page" id="page-customers">
+        <div class="page-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="customerSearch" placeholder="Search customers…" oninput="filterCustomerTable()" />
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Orders</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="customersBody"></tbody>
+          </table>
+          </div>
+          <div class="table-empty" id="customersEmpty" style="display:none">No customers yet.</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ░░ PRODUCT MODAL ░░ -->
+  <div class="modal-overlay" id="productModalOverlay" style="display:none" onclick="closeOnBackdrop(event,'productModalOverlay')">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="productModalTitle">Add Product</h2>
+        <button class="modal-close-btn" onclick="closeProductModal()">✕</button>
+      </div>
+
+      <div class="img-upload" id="imgUploadZone" onclick="document.getElementById('imgFileInput').click()">
+        <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImgSelect(event)" />
+        <div id="imgPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Click to upload image</span>
+          <small>PNG · JPG · WEBP · max 5 MB</small>
+        </div>
+        <img id="imgPreview" src="" alt="" style="display:none" />
+        <button type="button" id="imgRemoveBtn" style="display:none" class="img-remove-btn" onclick="removeImg(event)">✕ Remove</button>
+      </div>
+
+      <form id="productForm" onsubmit="submitProduct(event)">
+        <input type="hidden" id="pEditId" />
+        <input type="hidden" id="pExistingImg" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" id="pName" required placeholder="e.g. Vitamin C Serum" />
+          </div>
+          <div class="form-group">
+            <label>Price (KWD) *</label>
+            <input type="number" id="pPrice" step="0.001" min="0" required placeholder="0.000" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="pDesc" rows="3" placeholder="Describe the product…"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Collection</label>
+            <select id="pCollection"><option value="">— None —</option></select>
+          </div>
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" id="pQty" min="0" required placeholder="0" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Badge</label>
+            <select id="pBadge">
+              <option value="">None</option>
+              <option value="New">New</option>
+              <option value="HOT">HOT</option>
+              <option value="Sale">Sale</option>
+              <option value="Best Seller">Best Seller</option>
+              <option value="Sold Out">Sold Out</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <label class="toggle-wrap">
+              <input type="checkbox" id="pActive" checked />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span>Active in store</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="variants-header">
+            <label>Variants <span class="label-hint">(optional — size, scent, skin type…)</span></label>
+            <button type="button" class="add-variant-btn" onclick="addVariant()">+ Add</button>
+          </div>
+          <div id="variantsWrap"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="closeProductModal()">Cancel</button>
+          <button type="submit" class="btn-primary" id="productSubmitBtn">
+            <span id="productSubmitText">Save Product</span>
+            <span class="spinner" id="productSpinner" style="display:none"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ░░ COLLECTION MODAL ░░ -->
+  <div class="modal-overlay" id="collectionModalOverlay" style="display:none" onclick="closeOnBackdrop(event,'collectionModalOverlay')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="collectionModalTitle">Add Collection</h2>
+        <button class="modal-close-btn" onclick="closeCollectionModal()">✕</button>
+      </div>
+      <form id="collectionForm" onsubmit="submitCollection(event)">
+        <input type="hidden" id="cEditId" />
+        <div class="form-group">
+          <label>Collection Name *</label>
+          <input type="text" id="cName" required placeholder="e.g. Vitamin C Line" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="cDesc" rows="3" placeholder="Describe this collection…"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="closeCollectionModal()">Cancel</button>
+          <button type="submit" class="btn-primary" id="collectionSubmitBtn">
+            <span id="collectionSubmitText">Save Collection</span>
+            <span class="spinner" id="collectionSpinner" style="display:none"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ░░ BUNDLE MODAL ░░ -->
+  <div class="modal-overlay" id="bundleModalOverlay" style="display:none" onclick="closeOnBackdrop(event,'bundleModalOverlay')">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="bundleModalTitle">Add Bundle</h2>
+        <button class="modal-close-btn" onclick="closeBundleModal()">✕</button>
+      </div>
+
+      <div class="img-upload" id="bImgUploadZone" onclick="document.getElementById('bImgFileInput').click()">
+        <input type="file" id="bImgFileInput" accept="image/*" style="display:none" onchange="handleBundleImgSelect(event)" />
+        <div id="bImgPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="32" height="32"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Click to upload bundle image</span>
+          <small>PNG · JPG · WEBP · max 5 MB</small>
+        </div>
+        <img id="bImgPreview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0" />
+        <button type="button" id="bImgRemoveBtn" style="display:none" class="img-remove-btn" onclick="removeBundleImg(event)">✕ Remove</button>
+      </div>
+
+      <form id="bundleForm" onsubmit="submitBundle(event)">
+        <input type="hidden" id="bEditId" />
+        <input type="hidden" id="bExistingImg" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Bundle Name *</label>
+            <input type="text" id="bName" required placeholder="e.g. Glow Starter Set" />
+          </div>
+          <div class="form-group">
+            <label>Bundle Price (KWD) *</label>
+            <input type="number" id="bPrice" step="0.001" min="0" required placeholder="0.000" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="bDesc" rows="2" placeholder="Short pitch shown on the storefront…"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Badge</label>
+            <select id="bBadge">
+              <option value="">None</option>
+              <option value="New">New</option>
+              <option value="HOT">HOT</option>
+              <option value="Bundle">Bundle</option>
+              <option value="Best Value">Best Value</option>
+            </select>
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <label class="toggle-wrap">
+              <input type="checkbox" id="bActive" checked />
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span>Active in store</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="variants-header">
+            <label>Products in Bundle * <span class="label-hint">(at least one required)</span></label>
+            <button type="button" class="add-variant-btn" onclick="addBundleItemRow()">+ Add product</button>
+          </div>
+          <div id="bundleItemsWrap"></div>
+          <div id="bundleOriginalTotal" class="bundle-original-total"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="closeBundleModal()">Cancel</button>
+          <button type="submit" class="btn-primary" id="bundleSubmitBtn">
+            <span id="bundleSubmitText">Save Bundle</span>
+            <span class="spinner" id="bundleSpinner" style="display:none"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ░░ ORDER DETAIL MODAL ░░ -->
+  <div class="modal-overlay" id="orderDetailOverlay" style="display:none" onclick="closeOnBackdrop(event,'orderDetailOverlay')">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Order Details</h2>
+        <button class="modal-close-btn" onclick="closeOrderDetail()">✕</button>
+      </div>
+      <div id="orderDetailBody"></div>
+    </div>
+  </div>
+
+  <!-- ░░ DELETE CONFIRM ░░ -->
+  <div class="modal-overlay" id="deleteOverlay" style="display:none">
+    <div class="modal modal-sm confirm-modal">
+      <div class="confirm-icon">⚠</div>
+      <h3 id="deleteTitle">Delete?</h3>
+      <p id="deleteMsg">This cannot be undone.</p>
+      <div class="modal-footer" style="justify-content:center;gap:12px">
+        <button class="btn-ghost" onclick="closeDelete()">Cancel</button>
+        <button class="btn-danger" id="deleteConfirmBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ TOAST ░░ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ░░ LOGIN OVERLAY ░░ -->
+  <div class="login-overlay" id="loginOverlay" style="display:flex">
+    <div class="login-card">
+      <div class="login-logo">HAMS</div>
+      <div class="login-sub">Admin Dashboard</div>
+      <form class="login-form" id="loginForm" onsubmit="signIn(event)">
+        <div class="login-error" id="loginError"></div>
+        <div class="login-field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="admin@example.com" autocomplete="username" />
+        </div>
+        <div class="login-field">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="login-btn" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -14,7 +14,9 @@ if (typeof supabase !== 'undefined') {
 
 let allProducts      = [];
 let allCollections   = [];
-let cart             = JSON.parse(localStorage.getItem('hams_cart')     || '[]');
+let allBundles       = [];
+let cart             = (JSON.parse(localStorage.getItem('hams_cart') || '[]'))
+                         .map(it => it.type ? it : { type: 'product', id: it.id, qty: it.qty });
 let wishlist         = JSON.parse(localStorage.getItem('hams_wishlist') || '[]');
 let currentView      = 'home';
 let activeCollection = null;
@@ -60,6 +62,20 @@ function initializeApp() {
 async function loadInitialData() {
   if (!sb) return;
   await Promise.all([loadCollections(), loadProducts()]);
+  await loadBundles();
+}
+
+async function loadBundles() {
+  if (!sb) { allBundles = []; renderHomeBundles(); return; }
+  try {
+    const { data, error } = await sb
+      .from('bundles')
+      .select('*, bundle_items(product_id, quantity)')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+    allBundles = error ? [] : (data || []);
+  } catch (e) { allBundles = []; }
+  renderHomeBundles();
 }
 
 async function loadProducts() {
@@ -199,6 +215,102 @@ function renderHomeProducts() {
   renderProductsGrid('monthlyOffersGrid',   allProducts.filter(p => p.is_active).slice(0, 8));
   renderProductsSlider('bestSellersSlider', allProducts.filter(p => p.is_active).slice(0, 8));
   renderProductsGrid('topRatedGrid',        allProducts.filter(p => p.is_active).slice(0, 4));
+}
+
+/* ── RENDERS: BUNDLES ──────────────────────────────────────── */
+function bundleOriginalPrice(bundle) {
+  const items = bundle.bundle_items || [];
+  return items.reduce((sum, bi) => {
+    const p = allProducts.find(pr => pr.id === bi.product_id);
+    return sum + (p ? Number(p.price) * (bi.quantity || 1) : 0);
+  }, 0);
+}
+
+function isBundleSoldOut(bundle) {
+  const items = bundle.bundle_items || [];
+  if (!items.length) return true;
+  return items.some(bi => {
+    const p = allProducts.find(pr => pr.id === bi.product_id);
+    if (!p) return true;
+    if (!p.is_active) return true;
+    return Number(p.quantity || 0) < (bi.quantity || 1);
+  });
+}
+
+function bundleIncludesText(bundle) {
+  const items = bundle.bundle_items || [];
+  if (!items.length) return '';
+  return items.map(bi => {
+    const p = allProducts.find(pr => pr.id === bi.product_id);
+    const name = p ? p.name : 'Product';
+    return bi.quantity > 1 ? `${name} × ${bi.quantity}` : name;
+  }).join(' · ');
+}
+
+function bundleImgSrc(b) {
+  if (!b.image_path) {
+    const firstItem = (b.bundle_items || [])[0];
+    const firstProd = firstItem ? allProducts.find(p => p.id === firstItem.product_id) : null;
+    if (firstProd) return getImgSrc(firstProd);
+    return 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&q=80';
+  }
+  if (b.image_path.startsWith('http')) return b.image_path;
+  if (!sb) return 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&q=80';
+  return sb.storage.from(STORAGE_BUCKET).getPublicUrl(b.image_path).data.publicUrl;
+}
+
+function bundleCard(b) {
+  const imgSrc    = bundleImgSrc(b);
+  const orig      = bundleOriginalPrice(b);
+  const price     = Number(b.bundle_price);
+  const savings   = orig > price ? (orig - price) : 0;
+  const soldOut   = isBundleSoldOut(b);
+  const badge     = b.badge || 'Bundle';
+  const includes  = bundleIncludesText(b);
+
+  return `
+    <div class="product-card bundle-card fade-up" data-bundle-id="${b.id}">
+      <div class="product-img">
+        <img src="${imgSrc}" alt="${escHtml(b.name)}" loading="lazy"
+             onerror="this.src='https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=500&q=80'" />
+        <span class="product-badge">${escHtml(badge)}</span>
+      </div>
+      <div class="product-info">
+        <div class="product-collection">Bundle</div>
+        <div class="product-name">${escHtml(b.name)}</div>
+        ${includes ? `<div class="bundle-includes">Includes: ${escHtml(includes)}</div>` : ''}
+        ${savings > 0 ? `<span class="bundle-savings">Save KWD ${savings.toFixed(3)}</span>` : ''}
+        <div class="product-price-row" style="margin-top:10px">
+          <span class="product-price">
+            KWD ${price.toFixed(3)}
+            ${orig > price ? `<span class="original">KWD ${orig.toFixed(3)}</span>` : ''}
+          </span>
+          ${soldOut
+            ? `<button class="add-to-cart-btn" disabled style="opacity:.4;cursor:not-allowed" title="Sold Out">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+               </button>`
+            : `<button class="add-to-cart-btn" onclick="addBundleToCart('${b.id}',event)" title="Add bundle to cart">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+               </button>`
+          }
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderHomeBundles() {
+  const section = document.getElementById('home-bundles');
+  const slider  = document.getElementById('bundlesSlider');
+  if (!section || !slider) return;
+
+  if (!allBundles.length) {
+    section.style.display = 'none';
+    slider.innerHTML = '';
+    return;
+  }
+  section.style.display = '';
+  slider.innerHTML = allBundles.map(bundleCard).join('');
+  observeFadeUps();
 }
 
 /* ── SHOP ──────────────────────────────────────────────────── */
@@ -453,27 +565,52 @@ function addToCart(productId, e) {
   if (e) e.stopPropagation();
   const product = allProducts.find(p => p.id === productId);
   if (!product || product.quantity === 0) return;
-  const existing = cart.find(i => i.id === productId);
+  const existing = cart.find(i => i.type === 'product' && i.id === productId);
   if (existing) existing.qty += 1;
-  else cart.push({ id: productId, qty: 1 });
+  else cart.push({ type: 'product', id: productId, qty: 1 });
   saveCart(); updateBadges();
   showToast(product.name + ' added to cart');
 }
-function removeFromCart(productId) {
-  cart = cart.filter(i => i.id !== productId);
+
+function addBundleToCart(bundleId, e) {
+  if (e) e.stopPropagation();
+  const bundle = allBundles.find(b => b.id === bundleId);
+  if (!bundle) return;
+  if (isBundleSoldOut(bundle)) { showToast('This bundle is currently out of stock.'); return; }
+  const existing = cart.find(i => i.type === 'bundle' && i.id === bundleId);
+  if (existing) existing.qty += 1;
+  else cart.push({ type: 'bundle', id: bundleId, qty: 1 });
+  saveCart(); updateBadges();
+  showToast(bundle.name + ' bundle added to cart');
+}
+
+function removeFromCart(type, id) {
+  cart = cart.filter(i => !(i.type === type && i.id === id));
   saveCart(); updateBadges(); renderCartDrawer();
 }
-function changeQty(productId, delta) {
-  const item = cart.find(i => i.id === productId);
+function changeQty(type, id, delta) {
+  const item = cart.find(i => i.type === type && i.id === id);
   if (!item) return;
   item.qty = Math.max(1, item.qty + delta);
   saveCart(); updateBadges(); renderCartDrawer();
 }
 function saveCart() { localStorage.setItem('hams_cart', JSON.stringify(cart)); }
+
+function cartLineInfo(item) {
+  if (item.type === 'bundle') {
+    const b = allBundles.find(x => x.id === item.id);
+    if (!b) return null;
+    return { name: b.name, price: Number(b.bundle_price), img: bundleImgSrc(b), isBundle: true };
+  }
+  const p = allProducts.find(x => x.id === item.id);
+  if (!p) return null;
+  return { name: p.name, price: Number(p.price), img: getImgSrc(p), isBundle: false };
+}
+
 function cartTotal() {
   return cart.reduce((sum, item) => {
-    const p = allProducts.find(pr => pr.id === item.id);
-    return sum + (p ? Number(p.price) * item.qty : 0);
+    const info = cartLineInfo(item);
+    return sum + (info ? info.price * item.qty : 0);
   }, 0);
 }
 function renderCartDrawer() {
@@ -488,21 +625,21 @@ function renderCartDrawer() {
     footer.style.display = 'none'; return;
   }
   body.innerHTML = cart.map(item => {
-    const p = allProducts.find(pr => pr.id === item.id);
-    if (!p) return '';
-    const img = getImgSrc(p);
+    const info = cartLineInfo(item);
+    if (!info) return '';
+    const tag  = info.isBundle ? '<span class="cart-item-bundle-tag">Bundle</span>' : '';
     return `<div class="cart-item">
-      <div class="cart-item-img"><img src="${img}" alt="${escHtml(p.name)}" /></div>
+      <div class="cart-item-img"><img src="${info.img}" alt="${escHtml(info.name)}" /></div>
       <div class="cart-item-info">
-        <div class="cart-item-name">${escHtml(p.name)}</div>
-        <div class="cart-item-price">KWD ${Number(p.price).toFixed(3)}</div>
+        <div class="cart-item-name">${tag}${escHtml(info.name)}</div>
+        <div class="cart-item-price">KWD ${info.price.toFixed(3)}</div>
         <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <button class="qty-btn" onclick="changeQty('${item.type}','${item.id}',-1)">−</button>
           <span>${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+          <button class="qty-btn" onclick="changeQty('${item.type}','${item.id}',1)">+</button>
         </div>
       </div>
-      <button class="cart-item-remove" onclick="removeFromCart('${p.id}')" title="Remove">✕</button>
+      <button class="cart-item-remove" onclick="removeFromCart('${item.type}','${item.id}')" title="Remove">✕</button>
     </div>`;
   }).join('');
   document.getElementById('cartTotal').textContent = 'KWD ' + cartTotal().toFixed(3);
@@ -530,8 +667,10 @@ function showCheckout() {
   document.getElementById('checkoutOverlay').style.display = 'flex';
   const summary = document.getElementById('orderSummaryMini');
   const items = cart.map(item => {
-    const p = allProducts.find(pr => pr.id === item.id);
-    return p ? `<div class="mini-item"><span>${escHtml(p.name)} × ${item.qty}</span><span>KWD ${(Number(p.price) * item.qty).toFixed(3)}</span></div>` : '';
+    const info = cartLineInfo(item);
+    if (!info) return '';
+    const tag = info.isBundle ? '[Bundle] ' : '';
+    return `<div class="mini-item"><span>${escHtml(tag + info.name)} × ${item.qty}</span><span>KWD ${(info.price * item.qty).toFixed(3)}</span></div>`;
   }).join('');
   summary.innerHTML = items + `<div class="mini-total"><span>Total</span><span>KWD ${cartTotal().toFixed(3)}</span></div>`;
 }
@@ -543,12 +682,12 @@ async function submitOrder(e) {
   if (!sb) { showToast('Database not available.'); return; }
 
   const items = cart.map(item => {
-    const p = allProducts.find(pr => pr.id === item.id);
-    return {
-      product_id: item.id,
-      quantity:   item.qty,
-      unit_price: Number(p?.price || 0),
-    };
+    const info = cartLineInfo(item);
+    const unit = info ? info.price : 0;
+    if (item.type === 'bundle') {
+      return { bundle_id: item.id, quantity: item.qty, unit_price: unit };
+    }
+    return { product_id: item.id, quantity: item.qty, unit_price: unit };
   });
 
   const { data: orderId, error } = await sb.rpc('place_order', {
